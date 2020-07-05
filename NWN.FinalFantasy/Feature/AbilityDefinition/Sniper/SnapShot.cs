@@ -29,7 +29,7 @@ namespace NWN.FinalFantasy.Feature.AbilityDefinition
                 .Name("Snap Shot")
                 .HasRecastDelay(RecastGroup.SnapShot, 30.0f)
                 .RequirementStamina(5)
-                .UsesActivationType(AbilityActivationType.Weapon)
+                .UsesActivationType(AbilityActivationType.Casted)
                 .HasImpactAction((activator, target, level) =>
                 {
                     var gun = GetItemInSlot(InventorySlot.RightHand, activator);

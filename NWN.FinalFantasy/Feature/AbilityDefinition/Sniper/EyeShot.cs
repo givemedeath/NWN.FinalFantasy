@@ -33,36 +33,16 @@ namespace NWN.FinalFantasy.Feature.AbilityDefinition
                 .UsesActivationType(AbilityActivationType.Weapon)
                 .HasImpactAction((activator, target, level) =>
                 {
-                    SetLocalBool(target, EyeShotVariableName, true);
-                    SetLocalObject(target, EyeShotActivatorVariableName, activator);
+                    var damageDetails = Damage.GetDamageEventData();
+                    if (damageDetails.Total <= 0.0f) return;
 
-                    DelayCommand(duration, () => { DeleteLocalBool(activator, EyeShotVariableName); });
-                    DelayCommand(duration, () => { DeleteLocalObject(activator, EyeShotActivatorVariableName); });                    
+                    damageDetails.AdjustAllByPercent(1.5f);
+                    ApplyEffectToObject(DurationType.Temporary, EffectAttackDecrease(-5), target, duration);
+                    ApplyEffectToObject(DurationType.Temporary, EffectVisualEffect(VisualEffect.Vfx_Dur_Glow_Red), target, duration);
+
+                    Enmity.ModifyEnmity(activator, target, 4);
+                    CombatPoint.AddCombatPoint(activator, target, SkillType.Marksmanship, 2);
                 });
-        }
-
-        /// <summary>
-        /// When damage is applied, if the target has a Life Steal variable set,
-        /// that percent of the damage dealt is restored on the activator.
-        /// </summary>
-        [NWNEventHandler("on_nwnx_dmg")]
-        public static void ApplyEyeShot()
-        {
-            var target = OBJECT_SELF;
-            var damageDetails = Damage.GetDamageEventData();
-
-            if (!GetLocalBool(damageDetails.Damager, EyeShotVariableName)) return;
-            if (damageDetails.Total <= 0.0f) return;
-
-            damageDetails.AdjustAllByPercent(1.5f);
-            ApplyEffectToObject(DurationType.Temporary, EffectAttackDecrease(-5), target, duration);         
-            ApplyEffectToObject(DurationType.Temporary, EffectVisualEffect(VisualEffect.Vfx_Dur_Glow_Red), target, duration);
-
-            Enmity.ModifyEnmity(damageDetails.Damager, target, 4);
-            CombatPoint.AddCombatPoint(damageDetails.Damager, target, SkillType.Marksmanship, 2);
-
-            DeleteLocalBool(damageDetails.Damager, EyeShotVariableName);
-            DeleteLocalObject(damageDetails.Damager, EyeShotActivatorVariableName);
         }
     }
 }
